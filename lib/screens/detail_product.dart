@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit/cubit_couter.dart';
-import '../models/Product.dart';
+import '../cubit/product_cubit.dart';
+import '../models/product.dart';
  // File chứa model Product của bạn
 
 class DetailsProduct extends StatefulWidget {
@@ -18,8 +18,9 @@ class _HomePageState extends State<DetailsProduct> {
   @override
   void initState() {
     super.initState();
-    // Lấy ID từ CartCubit hoặc bất kỳ nguồn nào khác
-    int id = context.read<CartCubit>().state['idDetailProduct'];
+    // Lấy ID từ ProductCubit hoặc bất kỳ nguồn nào khác
+    // int id = context.read<ProductCubit>().state['idDetailProduct'];
+    int id = 1;
     futureProduct = fetchProduct(id);
   }
 
@@ -29,7 +30,7 @@ class _HomePageState extends State<DetailsProduct> {
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-      return Product.fromJson(jsonData);
+      return Product.fromMap(jsonData);
     } else {
       throw Exception('Failed to load product');
     }
@@ -274,14 +275,14 @@ class _HomePageState extends State<DetailsProduct> {
                       children: [
                         ElevatedButton.icon(
                           onPressed: () {
-                            context.read<CartCubit>().setIsDetailProduct(false);
+                            //context.read<ProductCubit>().setIsDetailProduct(false);
                           },
                           icon: const Icon(Icons.arrow_back),
                           label: const Text('Back'),
                         ),
                         // ElevatedButton.icon(
                         //   onPressed: () {
-                        //     context.read<CartCubit>().addItem(product);
+                        //     context.read<ProductCubit>().addItem(product);
                         //   },
                         //   icon: const Icon(Icons.shopping_cart),
                         //   label: const Text('Order Now'),

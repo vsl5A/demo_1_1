@@ -37,33 +37,33 @@ class Product {
     this.images,
   });
 
-  // Factory constructor to parse JSON
-  factory Product.fromJson(Map<String, dynamic> json) {
+  // Factory constructor to parse map
+  factory Product.fromMap(Map<String, dynamic> map) {
     return Product(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      price: json['price']?.toDouble(),
-      stock: json['stock'],
-      discountPercentage: json['discountPercentage'],
-      category: json['category'],
-      thumbnail: json['thumbnail'],
-      Qty: json['Qty'] ?? 1, // Default quantity to 1 if not provided
-      rating: json['rating']?.toDouble(),
-      sku: json['sku'],
-      weight: json['weight'],
-      dimensions: json['dimensions'] != null
+      id: map['id'],
+      title: map['title'],
+      description: map['description'],
+      price: map['price']?.toDouble(),
+      stock: map['stock'],
+      discountPercentage: map['discountPercentage'],
+      category: map['category'],
+      thumbnail: map['thumbnail'],
+      Qty: map['Qty'] ?? 1, // Default quantity to 1 if not provided
+      rating: map['rating']?.toDouble(),
+      sku: map['sku'],
+      weight: map['weight'],
+      dimensions: map['dimensions'] != null
           ? {
-        'width': json['dimensions']['width']?.toDouble() ?? 0.0,
-        'height': json['dimensions']['height']?.toDouble() ?? 0.0,
-        'depth': json['dimensions']['depth']?.toDouble() ?? 0.0,
+        'width': map['dimensions']['width']?.toDouble() ?? 0.0,
+        'height': map['dimensions']['height']?.toDouble() ?? 0.0,
+        'depth': map['dimensions']['depth']?.toDouble() ?? 0.0,
       }
           : null,
-      warrantyInformation: json['warrantyInformation'],
-      shippingInformation: json['shippingInformation'],
-      reviews: json['reviews'] != null
-          ? List<Map<String, dynamic>>.from(json['reviews'])
+      warrantyInformation: map['warrantyInformation'],
+      shippingInformation: map['shippingInformation'],
+      reviews: map['reviews'] != null
+          ? List<Map<String, dynamic>>.from(map['reviews'])
           : null,
-      images: json['images'][0],
+      images: map['images'][0],
     );
   }}
