@@ -45,7 +45,7 @@ class Product {
       description: map['description'],
       price: map['price']?.toDouble(),
       stock: map['stock'],
-      discountPercentage: map['discountPercentage'],
+      discountPercentage: double.tryParse(map['discountPercentage'].toString()) ?? 0,
       category: map['category'],
       thumbnail: map['thumbnail'],
       Qty: map['Qty'] ?? 1, // Default quantity to 1 if not provided
@@ -66,4 +66,14 @@ class Product {
           : null,
       images: map['images'][0],
     );
-  }}
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Product) return false;
+    return other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+}

@@ -2,58 +2,51 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:testtwo/cubit/error_state.dart';
+import 'package:testtwo/cubit/loading_state.dart';
+import 'package:testtwo/cubit/loaded_detail_state.dart';
+import 'package:testtwo/cubit/product_state.dart';
 
 import '../cubit/product_cubit.dart';
 import '../models/product.dart';
- // File chứa model Product của bạn
 
 class DetailsProduct extends StatefulWidget {
+  const DetailsProduct({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<DetailsProduct> {
-  late Future<Product> futureProduct;
+  late Product product;
 
   @override
-  void initState() {
-    super.initState();
-    // Lấy ID từ ProductCubit hoặc bất kỳ nguồn nào khác
-    // int id = context.read<ProductCubit>().state['idDetailProduct'];
-    int id = 1;
-    futureProduct = fetchProduct(id);
-  }
-
-  Future<Product> fetchProduct(int id) async {
-    final url = Uri.parse('https://dummyjson.com/products/$id');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      return Product.fromMap(jsonData);
-    } else {
-      throw Exception('Failed to load product');
-    }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final productId = ModalRoute.of(context)!.settings.arguments as int;
+    context.read<ProductCubit>().showProductDetail(productId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Product Details',
-          style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+        appBar: AppBar(
+          backgroundColor: Colors.blue,
+          leading: IconButton(onPressed: handlePressedBack, icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white,)),
+          title: const Text(
+            'Product Detail',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-      ),
-      body: FutureBuilder<Product>(
-        future: futureProduct,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final product = snapshot.data!;
+        body: WillPopScope(child: BlocBuilder<ProductCubit, ProductState>(builder: (context, state) {
+          if (state is LoadingState) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is ErrorState) {
+            return Center(child: Text(state.error));
+          } else if (state is LoadedDetailState) {
+            product = state.product;
             return SingleChildScrollView(
               child: Card(
                 elevation: 5,
@@ -81,102 +74,83 @@ class _HomePageState extends State<DetailsProduct> {
                                 padding: const EdgeInsets.all(6.0),
                                 child: Text(
                                   product.title ?? 'No Title',
-                                  style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                      fontSize: 24.0,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(6.0),
-                                child: Text(product.description ?? 'No Description'),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child:
-                                Row(
-                                  children: [
-                                    Text('Id: ', style: const TextStyle(fontSize: 18.0)),
-                                    Text('${product.id}',style: const TextStyle(fontSize: 18.0,color: Colors.yellow)),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child:
-                                Row(
-                                  children: [
-                                    Text('Rating: ', style: const TextStyle(fontSize: 18.0)),
-                                    Text('${product.rating}',style: const TextStyle(fontSize: 18.0,color: Colors.yellow)),
-                                  ],
-                                ),
-
+                                child: Text(
+                                    product.description ?? 'No Description'),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(6.0),
                                 child: Row(
                                   children: [
-                                    Text('Sku: ', style: const TextStyle(fontSize: 18.0)),
-                                    Text('${product.sku}',style: const TextStyle(fontSize: 18.0,color: Colors.yellow)),
+                                    Text('Id: ',
+                                        style: const TextStyle(fontSize: 18.0)),
+                                    Text('${product.id}',
+                                        style: const TextStyle(
+                                            fontSize: 18.0,
+                                            color: Colors.yellow)),
                                   ],
                                 ),
-
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(6.0),
                                 child: Row(
                                   children: [
-                                    Text('Weight: ', style: const TextStyle(fontSize: 18.0)),
-                                    Text('${product.weight}',style: const TextStyle(fontSize: 18.0,color: Colors.yellow)),
+                                    Text('Rating: ',
+                                        style: const TextStyle(fontSize: 18.0)),
+                                    Text('${product.rating}',
+                                        style: const TextStyle(
+                                            fontSize: 18.0,
+                                            color: Colors.yellow)),
                                   ],
                                 ),
-
                               ),
-                              // dimension
-                              // Row(
-                              //   children: [
-                              //     Padding(
-                              //       padding: const EdgeInsets.all(6.0),
-                              //       child: Text('dimensions:', style: const TextStyle(fontSize: 18.0)),
-                              //     ),
-                              //     DropdownButton<String>(
-                              //       value:'${product.dimensions['width']}',
-                              //       icon: const Icon(Icons.arrow_downward),
-                              //       iconSize: 24,
-                              //       elevation: 16,
-                              //       style: const TextStyle(color: Colors.deepPurple),
-                              //       underline: Container(
-                              //         height: 2,
-                              //         color: Colors.deepPurpleAccent,
-                              //       ),
-                              //       onChanged: (String? newValue) {
-                              //         // setState(() {
-                              //         //   dropdownValue = newValue!;
-                              //         // });
-                              //         // _fetchProductsByCategory(dropdownValue!);
-                              //
-                              //
-                              //         https://dummyjson.com/products/category/smartphones
-                              //         // In ra "Hello World" khi chọn một mục
-                              //         //print("Hello World categoryyyyyyyyyyyyyy ${dropdownValue}");
-                              //       },
-                              //       items: Categories.map<DropdownMenuItem<String>>((Categorytt category) {
-                              //         return DropdownMenuItem<String>(
-                              //           value: category.slug, // Sử dụng slug làm giá trị
-                              //           child: Text(category.name), // Hiển thị tên danh mục
-                              //         );
-                              //       }).toList(),
-                              //     ),
-                              //   ],
-                              // )
                               Padding(
                                 padding: const EdgeInsets.all(6.0),
                                 child: Row(
                                   children: [
-                                    Text('WarrantyInformation: ', style: const TextStyle(fontSize: 18.0)),
-                                    Flexible(child: Text('${product.warrantyInformation}',
-                                        style: const TextStyle(fontSize: 18.0,color: Colors.yellow),
-                                        overflow: TextOverflow.ellipsis)),
+                                    Text('Sku: ',
+                                        style: const TextStyle(fontSize: 18.0)),
+                                    Text('${product.sku}',
+                                        style: const TextStyle(
+                                            fontSize: 18.0,
+                                            color: Colors.yellow)),
                                   ],
                                 ),
-
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(6.0),
+                                child: Row(
+                                  children: [
+                                    Text('Weight: ',
+                                        style: const TextStyle(fontSize: 18.0)),
+                                    Text('${product.weight}',
+                                        style: const TextStyle(
+                                            fontSize: 18.0,
+                                            color: Colors.yellow)),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(6.0),
+                                child: Row(
+                                  children: [
+                                    Text('WarrantyInformation: ',
+                                        style: const TextStyle(fontSize: 18.0)),
+                                    Flexible(
+                                        child: Text(
+                                            '${product.warrantyInformation}',
+                                            style: const TextStyle(
+                                                fontSize: 18.0,
+                                                color: Colors.yellow),
+                                            overflow: TextOverflow.ellipsis)),
+                                  ],
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(6.0),
@@ -189,14 +163,15 @@ class _HomePageState extends State<DetailsProduct> {
                                     Flexible(
                                       child: Text(
                                         '${product.shippingInformation}',
-                                        style: const TextStyle(fontSize: 18.0, color: Colors.yellow),
-                                        overflow: TextOverflow.ellipsis, // Thêm dấu "..." nếu nội dung quá dài
+                                        style: const TextStyle(
+                                            fontSize: 18.0,
+                                            color: Colors.yellow),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -210,9 +185,12 @@ class _HomePageState extends State<DetailsProduct> {
                         itemBuilder: (context, index) {
                           final review = product.reviews?[index];
                           return Container(
-                            width: 300, // Chiều rộng cho mỗi ô review
-                            margin: const EdgeInsets.symmetric(horizontal: 8.0), // Khoảng cách giữa các review
-                            padding: const EdgeInsets.all(16.0), // Nội dung padding
+                            width: 300,
+                            // Chiều rộng cho mỗi ô review
+                            margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                            // Khoảng cách giữa các review
+                            padding: const EdgeInsets.all(16.0),
+                            // Nội dung padding
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8.0),
@@ -243,7 +221,8 @@ class _HomePageState extends State<DetailsProduct> {
                                 ),
                                 const Spacer(),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'Rating: ${review?['rating'] ?? 0}',
@@ -254,9 +233,13 @@ class _HomePageState extends State<DetailsProduct> {
                                     ),
                                     Text(
                                       review?['date'] != null
-                                          ? DateTime.parse(review!['date']).toLocal().toString().split(' ')[0]
+                                          ? DateTime.parse(review!['date'])
+                                          .toLocal()
+                                          .toString()
+                                          .split(' ')[0]
                                           : 'Unknown Date',
-                                      style: const TextStyle(color: Colors.grey),
+                                      style:
+                                      const TextStyle(color: Colors.grey),
                                     ),
                                   ],
                                 ),
@@ -266,27 +249,14 @@ class _HomePageState extends State<DetailsProduct> {
                         },
                       ),
                     ),
-
-
-
-
                     ButtonBar(
                       alignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton.icon(
-                          onPressed: () {
-                            //context.read<ProductCubit>().setIsDetailProduct(false);
-                          },
+                          onPressed: handlePressedBack,
                           icon: const Icon(Icons.arrow_back),
                           label: const Text('Back'),
                         ),
-                        // ElevatedButton.icon(
-                        //   onPressed: () {
-                        //     context.read<ProductCubit>().addItem(product);
-                        //   },
-                        //   icon: const Icon(Icons.shopping_cart),
-                        //   label: const Text('Order Now'),
-                        // ),
                       ],
                     ),
                   ],
@@ -294,10 +264,16 @@ class _HomePageState extends State<DetailsProduct> {
               ),
             );
           } else {
-            return const Center(child: Text('No data found'));
+            return const SizedBox();
           }
-        },
-      ),
-    );
+        }), onWillPop: () async {
+          handlePressedBack();
+          return true;
+        }
+    ));
+    }
+
+  void handlePressedBack() {
+    Navigator.pop(context, true);
   }
 }

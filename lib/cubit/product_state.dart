@@ -1,16 +1,32 @@
-import 'package:testtwo/cubit/product_detail_state.dart';
+import 'package:testtwo/cubit/loaded_detail_state.dart';
+import 'package:testtwo/models/category.dart';
 import 'package:testtwo/models/product.dart';
 
-import 'all_products_state.dart';
+import 'loaded_list_state.dart';
 import 'error_state.dart';
-import 'init_state.dart';
 import 'loading_state.dart';
 
-class ProductState{
+class ProductState {
   const ProductState();
-  factory ProductState.init() => InitState();
+
   factory ProductState.loading() => LoadingState();
-  factory ProductState.all(List<Product> products) => AllProductsState(products);
-  factory ProductState.detail(int id) => ProductDetailState(id);
+
+  factory ProductState.loadedList({
+    required List<Product> products,
+    required List<Category> categories,
+    required int currentPage,
+    required int totalPage,
+    required String selectedCategory,
+  }) =>
+      LoadedListState(
+          products: products,
+          categories: categories,
+          currentPage: currentPage,
+          totalPage: totalPage,
+          selectedCategory: selectedCategory);
+
+  factory ProductState.loadedDetail(Product product) =>
+      LoadedDetailState(product);
+
   factory ProductState.error(String error) => ErrorState(error);
 }
