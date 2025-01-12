@@ -20,7 +20,9 @@ class ProductList extends StatefulWidget {
 
 class _HomePageState extends State<ProductList> {
   List<Product> _products = [];
-  final List<Category> _categories = [Category(slug: '', name: 'All', url: '')];
+  final List<Category> _categories = [
+    Category(slug: 'All', name: 'All', url: '')
+  ];
   bool _isInitializedCategories = false;
   final TextEditingController _searchController = TextEditingController();
   late ProductCubit _cubit;
@@ -39,23 +41,6 @@ class _HomePageState extends State<ProductList> {
   Future<void> _fetchAllData() async {
     await _cubit.fetchProducts(page: 1, isNeedLoadCategories: true);
   }
-
-  // void _fetchProductsByCategory(String category) async {
-  //   final baseUrl =
-  //       Uri.parse('https://dummyjson.com/products/category/$category');
-  //   final response = await http.get(baseUrl, headers: {
-  //     'Content-Type': 'application/json; charset=UTF-16',
-  //   });
-  //
-  //   if (response.statusCode == 200) {
-  //     final result = ConvertUtils.parseProducts(response.body);
-  //     setState(() {
-  //       _products = result;
-  //     });
-  //   } else {
-  //     print("Error fetching products by category: ${response.statusCode}");
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -135,26 +120,27 @@ class _HomePageState extends State<ProductList> {
   }
 
   Widget _buildProductsPages() {
-    return _products.isNotEmpty ? Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Text('Page $_currentPage in $_totalPage pages'),
-        ),
-        Expanded(
-            child: NotificationListener<ScrollNotification>(
-          onNotification: _scrollProductsListener,
-          child: ListView.builder(
-                  itemCount: _products.length,
-                  itemBuilder: (context, index) {
-                    return _buildProductItem(_products[index]);
-                  },
-                )
-        ))
-      ],
-    ) : const Center(
-      child: Text('Dont have any products'),
-    );
+    return _products.isNotEmpty
+        ? Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Text('Page $_currentPage in $_totalPage pages'),
+              ),
+              Expanded(
+                  child: NotificationListener<ScrollNotification>(
+                      onNotification: _scrollProductsListener,
+                      child: ListView.builder(
+                        itemCount: _products.length,
+                        itemBuilder: (context, index) {
+                          return _buildProductItem(_products[index]);
+                        },
+                      )))
+            ],
+          )
+        : const Center(
+            child: Text('Don\'t have any products'),
+          );
   }
 
   Widget _buildProductItem(Product product) {
@@ -243,7 +229,7 @@ class _HomePageState extends State<ProductList> {
   List<Widget> _buildCategoryItems() {
     return _categories
         .map((category) => Container(
-              color: _selectedCategory == category.name
+              color: _selectedCategory == category.slug
                   ? Colors.blue
                   : Colors.white,
               child: SimpleDialogOption(
@@ -252,7 +238,7 @@ class _HomePageState extends State<ProductList> {
                 child: Text(
                   category.name,
                   style: TextStyle(
-                      color: _selectedCategory == category.name
+                      color: _selectedCategory == category.slug
                           ? Colors.white
                           : Colors.black),
                 ),
@@ -274,7 +260,7 @@ class _HomePageState extends State<ProductList> {
     final loadLastListState = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => DetailsProduct(),
+            builder: (context) => const DetailsProduct(),
             settings: RouteSettings(arguments: productId)));
 
     if (loadLastListState) {
@@ -286,6 +272,9 @@ class _HomePageState extends State<ProductList> {
     showDialog(
         context: context,
         builder: (context) => SimpleDialog(
+              backgroundColor: Colors.white,
+              title: const Text('Select category:', style: TextStyle(color: Colors.blue),),
+              contentPadding: const EdgeInsets.all(24),
               children: _buildCategoryItems(),
             ));
   }

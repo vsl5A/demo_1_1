@@ -3,4 +3,5 @@ class ApiConstant {
   static const headers = {
     'Content-Type': 'application/json; charset=UTF-16',
   };
+  static const limitResult = 500;
 }

@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 
 class ProductApi{
   static Future<Map<String, dynamic>> fetchProducts() async {
-    Uri uri = Uri.parse('${ApiConstant.baseUri}/products?limit=${194}');
+    Uri uri = Uri.parse('${ApiConstant.baseUri}/products?limit=${ApiConstant.limitResult}');
     final response = await http.get(uri, headers: ApiConstant.headers);
 
     if (response.statusCode == 200) {
@@ -32,7 +32,7 @@ class ProductApi{
   }
 
   static Future<Map<String, dynamic>> searchProducts({required String keyword}) async {
-    final uri = Uri.parse('${ApiConstant.baseUri}/products/search?q=$keyword&limit=${194}');
+    final uri = Uri.parse('${ApiConstant.baseUri}/products/search?q=$keyword&limit=${ApiConstant.limitResult}');
     final response = await http.get(uri, headers: ApiConstant.headers);
 
     if (response.statusCode == 200) {

@@ -9,7 +9,7 @@ void main() {
       BlocProvider(
         create: (context) => ProductCubit(),
         // CounterCubit sẽ được sử dụng ở cấp cao nhất của ứng dụng
-        child: MyApp(),
+        child: const MyApp(),
       )
   );
 }
